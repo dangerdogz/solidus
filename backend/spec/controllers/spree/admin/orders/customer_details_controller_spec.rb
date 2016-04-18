@@ -24,6 +24,12 @@ describe Spree::Admin::Orders::CustomerDetailsController, type: :controller do
         spree_put :update, attributes
       end
 
+      it "does refresh the tax rates with all taxable items" do
+        expect(order).to receive(:create_tax_charge!)
+        attributes = { order_id: order.number, order: { email: "" } }
+        spree_put :update, attributes
+      end
+
       # Regression spec
       context 'completed order' do
         let(:order) { create(:shipped_order) }
