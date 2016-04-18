@@ -18,17 +18,29 @@ module Spree
         end
 
         def update
+
+          #<Spree::Tax::TaxLocation:0x007f9d0d528350 @country_id=nil, @state_id=nil> is provided if no address exists yet
+          old_tax_address = @order.tax_address
+
           if @order.contents.update_cart(order_params)
+
+            new_tax_address = @order.tax_address
 
             if should_associate_user?
               requested_user = Spree.user_class.find(params[:user_id])
               @order.associate_user!(requested_user, @order.email.blank?)
             end
 
+            unless @order.paid?
+              if should_refresh_tax_rates?(old_tax_address, new_tax_address)
+                @order.create_tax_charge!
+                @order.update!
+              end
+            end
+
             unless @order.completed?
               @order.next
               @order.refresh_shipment_rates
-              @order.create_tax_charge!
             end
 
             flash[:success] = Spree.t('customer_details_updated')
@@ -59,6 +71,10 @@ module Spree
 
         def should_associate_user?
           params[:guest_checkout] == "false" && params[:user_id] && params[:user_id].to_i != @order.user_id
+        end
+
+        def should_refresh_tax_rates?(old_address, new_address)
+          (old_address.country_id != new_address.country_id) || (old_address.state_id != new_address.state_id)
         end
       end
     end
