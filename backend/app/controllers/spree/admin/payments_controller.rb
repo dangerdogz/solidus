@@ -5,6 +5,7 @@ module Spree
 
       before_action :load_order, only: [:create, :new, :index, :fire]
       before_action :load_payment, except: [:create, :new, :index, :fire]
+      before_action :load_store_credits, only: [:new]
       before_action :load_payment_for_fire, only: :fire
       before_action :load_data
       before_action :require_bill_address, only: [:index]
@@ -22,10 +23,12 @@ module Spree
       end
 
       def create
+        binding.pry
         @payment = PaymentCreate.new(@order, object_params).build
-        if @payment.payment_method.source_required? && params[:card].present? && params[:card] != 'new'
-          @payment.source = @payment.payment_method.payment_source_class.find_by_id(params[:card])
-        end
+        #if @payment.payment_method.source_required? && params[:card].present? && params[:card] != 'new'
+          binding.pry
+          @payment.source = @payment.payment_method.payment_source_class.find_by_id(params[:store_credit_id])
+        #end
 
         begin
           if @payment.save
@@ -94,6 +97,13 @@ module Spree
 
       def load_payment
         @payment = Payment.find(params[:id])
+      end
+
+      def load_store_credits
+        return if @order.user.nil?
+        return if @order.user.total_available_store_credit.zero?
+
+        @store_credits = @order.user.store_credits.reject { |store_credit| store_credit.amount_remaining.zero? }
       end
 
       def load_payment_for_fire
