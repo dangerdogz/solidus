@@ -218,4 +218,16 @@ describe Spree::LineItem, type: :model do
       expect(subject.currency).to eq("USD")
     end
   end
+
+  describe ".can_supply?" do
+    let(:variant) { Spree::Variant.new(product: Spree::Product.new) }
+    let(:line_item) { Spree::LineItem.new(variant: variant) }
+
+    subject { line_item.sufficient_stock? }
+
+    it "uses the `can_supply?` method from Spree::Variant" do
+      expect(variant).to receive(:can_supply?).with(line_item.quantity).once
+      subject
+    end
+  end
 end
