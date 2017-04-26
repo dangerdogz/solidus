@@ -178,6 +178,10 @@ module Spree
     #   @return [Integer] Customer returns to show per-page in the admin (default: +15+)
     preference :customer_returns_per_page, :integer, default: 15
 
+    # @!attribute [rw] refund_time_constraint
+    #   @return [Boolean] Max age from shipped_at date to allow refunds (default: +90.days+)
+    preference :refund_time_constraint, :integer, default: 90
+
     # @!attribute [rw] require_master_price
     #   @return [Boolean] Require a price on the master variant of a product (default: +true+)
     preference :require_master_price, :boolean, default: true
