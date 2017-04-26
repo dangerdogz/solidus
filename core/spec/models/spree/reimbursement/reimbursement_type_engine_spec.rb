@@ -90,35 +90,17 @@ module Spree
             context 'the return item has a preferred reimbursement type' do
               before { allow(return_item).to receive(:preferred_reimbursement_type).and_return(preferred_reimbursement_type) }
 
-              context 'the reimbursement type is not valid for the return item' do
-                before { expect(reimbursement_type_engine).to receive(:valid_preferred_reimbursement_type?).and_return(false) }
-
-                it 'returns a hash with no return items associated to the preferred reimbursement type' do
-                  expect(calculated_reimbursement_types[preferred_reimbursement_type]).to eq([])
-                end
-
-                it 'the return items are not included in any of the other reimbursement types' do
-                  (all_reimbursement_types - [preferred_reimbursement_type]).each do |r_type|
-                    expect(calculated_reimbursement_types[r_type]).to eq([])
-                  end
-                end
-
-                it_should_behave_like 'reimbursement type hash'
+              it 'returns a hash with the preferred reimbursement type associated to the return items' do
+                expect(calculated_reimbursement_types[preferred_reimbursement_type.class]).to eq(return_items)
               end
 
-              context 'the reimbursement type is valid for the return item' do
-                it 'returns a hash with the expired reimbursement type associated to the return items' do
-                  expect(calculated_reimbursement_types[preferred_reimbursement_type.class]).to eq(return_items)
+              it 'the return items are not included in any of the other reimbursement types' do
+                (all_reimbursement_types - [preferred_reimbursement_type.class]).each do |r_type|
+                  expect(calculated_reimbursement_types[r_type]).to eq([])
                 end
-
-                it 'the return items are not included in any of the other reimbursement types' do
-                  (all_reimbursement_types - [preferred_reimbursement_type.class]).each do |r_type|
-                    expect(calculated_reimbursement_types[r_type]).to eq([])
-                  end
-                end
-
-                it_should_behave_like 'reimbursement type hash'
               end
+
+              it_should_behave_like 'reimbursement type hash'
             end
 
             context 'the return item does not have a preferred reimbursement type' do

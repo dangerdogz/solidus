@@ -38,9 +38,7 @@ module Spree
       elsif return_item.override_reimbursement_type.present?
         return_item.override_reimbursement_type.class
       elsif return_item.preferred_reimbursement_type.present?
-        if valid_preferred_reimbursement_type?(return_item)
-          return_item.preferred_reimbursement_type.class
-        end
+        return_item.preferred_reimbursement_type.class
       else
         default_reimbursement_type
       end

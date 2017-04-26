@@ -21,33 +21,6 @@ module Spree
     let(:dummy) { DummyClass.new }
     let(:preferred_reimbursement_type) { Spree::ReimbursementType::Credit.new }
 
-    describe '#valid_preferred_reimbursement_type?' do
-      before do
-        allow(dummy).to receive(:past_reimbursable_time_period?).and_return(true)
-      end
-
-      subject { dummy.valid_preferred_reimbursement_type?(return_item) }
-
-      context 'is valid' do
-        it 'if it is not past the reimbursable time period' do
-          allow(dummy).to receive(:past_reimbursable_time_period?).and_return(false)
-          expect(subject).to be true
-        end
-
-        it 'if the return items preferred method of reimbursement is the expired method of reimbursement' do
-          expect(subject).to be true
-        end
-      end
-
-      context 'is invalid' do
-        it 'if the return item is past the eligible time period and the preferred method of reimbursement is not the expired method of reimbursement' do
-          return_item.preferred_reimbursement_type =
-            Spree::ReimbursementType::OriginalPayment.new
-          expect(subject).to be false
-        end
-      end
-    end
-
     describe '#past_reimbursable_time_period?' do
       subject { dummy.past_reimbursable_time_period?(return_item) }
 
