@@ -9,7 +9,7 @@ module Spree
       self.expired_reimbursement_type = Spree::ReimbursementType::Credit
 
       class_attribute :refund_time_constraint
-      self.refund_time_constraint = 90.days
+      self.refund_time_constraint = Spree::Config[:refund_time_constraint].days
     end
 
     let(:return_item) do

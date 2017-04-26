@@ -3,7 +3,7 @@ module Spree
     include Spree::Reimbursement::ReimbursementTypeValidator
 
     class_attribute :refund_time_constraint
-    self.refund_time_constraint = 90.days
+    self.refund_time_constraint = Spree::Config[:refund_time_constraint].days
 
     class_attribute :default_reimbursement_type
     self.default_reimbursement_type = Spree::ReimbursementType::OriginalPayment
