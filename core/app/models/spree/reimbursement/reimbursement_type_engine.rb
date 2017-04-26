@@ -33,14 +33,14 @@ module Spree
     def calculate_reimbursement_type(return_item)
       if return_item.exchange_required?
         exchange_reimbursement_type
+      elsif past_reimbursable_time_period?(return_item)
+        expired_reimbursement_type
       elsif return_item.override_reimbursement_type.present?
         return_item.override_reimbursement_type.class
       elsif return_item.preferred_reimbursement_type.present?
         if valid_preferred_reimbursement_type?(return_item)
           return_item.preferred_reimbursement_type.class
         end
-      elsif past_reimbursable_time_period?(return_item)
-        expired_reimbursement_type
       else
         default_reimbursement_type
       end

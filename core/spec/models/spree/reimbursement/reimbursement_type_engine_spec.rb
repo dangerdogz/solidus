@@ -12,12 +12,12 @@ module Spree
       let(:calculated_reimbursement_types) { subject }
       let(:all_reimbursement_types) {
         [
-                                        reimbursement_type_engine.default_reimbursement_type,
-                                        reimbursement_type_engine.exchange_reimbursement_type,
-                                        expired_reimbursement_type,
-                                        override_reimbursement_type,
-                                        preferred_reimbursement_type
-                                    ]
+          reimbursement_type_engine.default_reimbursement_type,
+          reimbursement_type_engine.exchange_reimbursement_type,
+          expired_reimbursement_type,
+          override_reimbursement_type,
+          preferred_reimbursement_type
+      ]
       }
 
       subject { reimbursement_type_engine.calculate_reimbursement_types }
@@ -53,15 +53,15 @@ module Spree
       end
 
       context 'the return item does not require exchange' do
-        context 'the return item has an override reimbursement type' do
-          before { allow(return_item).to receive(:override_reimbursement_type).and_return(override_reimbursement_type) }
+        context 'the return item is past the time constraint' do
+          before { allow(reimbursement_type_engine).to receive(:past_reimbursable_time_period?).and_return(true) }
 
-          it 'returns a hash with the override reimbursement type associated to the return items' do
-            expect(calculated_reimbursement_types[override_reimbursement_type.class]).to eq(return_items)
+          it 'returns a hash with the expired reimbursement type associated to the return items' do
+            expect(calculated_reimbursement_types[expired_reimbursement_type]).to eq(return_items)
           end
 
           it 'the return items are not included in any of the other reimbursement types' do
-            (all_reimbursement_types - [override_reimbursement_type.class]).each do |r_type|
+            (all_reimbursement_types - [expired_reimbursement_type]).each do |r_type|
               expect(calculated_reimbursement_types[r_type]).to eq([])
             end
           end
@@ -69,59 +69,59 @@ module Spree
           it_should_behave_like 'reimbursement type hash'
         end
 
-        context 'the return item does not have an override reimbursement type' do
-          context 'the return item has a preferred reimbursement type' do
-            before { allow(return_item).to receive(:preferred_reimbursement_type).and_return(preferred_reimbursement_type) }
+        context 'the return item is within the time constraint' do
+          context 'the return item has an override reimbursement type' do
+            before { allow(return_item).to receive(:override_reimbursement_type).and_return(override_reimbursement_type) }
 
-            context 'the reimbursement type is not valid for the return item' do
-              before { expect(reimbursement_type_engine).to receive(:valid_preferred_reimbursement_type?).and_return(false) }
-
-              it 'returns a hash with no return items associated to the preferred reimbursement type' do
-                expect(calculated_reimbursement_types[preferred_reimbursement_type]).to eq([])
-              end
-
-              it 'the return items are not included in any of the other reimbursement types' do
-                (all_reimbursement_types - [preferred_reimbursement_type]).each do |r_type|
-                  expect(calculated_reimbursement_types[r_type]).to eq([])
-                end
-              end
-
-              it_should_behave_like 'reimbursement type hash'
+            it 'returns a hash with the override reimbursement type associated to the return items' do
+              expect(calculated_reimbursement_types[override_reimbursement_type.class]).to eq(return_items)
             end
 
-            context 'the reimbursement type is valid for the return item' do
-              it 'returns a hash with the expired reimbursement type associated to the return items' do
-                expect(calculated_reimbursement_types[preferred_reimbursement_type.class]).to eq(return_items)
+            it 'the return items are not included in any of the other reimbursement types' do
+              (all_reimbursement_types - [override_reimbursement_type.class]).each do |r_type|
+                expect(calculated_reimbursement_types[r_type]).to eq([])
               end
-
-              it 'the return items are not included in any of the other reimbursement types' do
-                (all_reimbursement_types - [preferred_reimbursement_type.class]).each do |r_type|
-                  expect(calculated_reimbursement_types[r_type]).to eq([])
-                end
-              end
-
-              it_should_behave_like 'reimbursement type hash'
             end
+
+            it_should_behave_like 'reimbursement type hash'
           end
 
-          context 'the return item does not have a preferred reimbursement type' do
-            context 'the return item is past the time constraint' do
-              before { allow(reimbursement_type_engine).to receive(:past_reimbursable_time_period?).and_return(true) }
+          context 'the return item does not have an override reimbursement type' do
+            context 'the return item has a preferred reimbursement type' do
+              before { allow(return_item).to receive(:preferred_reimbursement_type).and_return(preferred_reimbursement_type) }
 
-              it 'returns a hash with the expired reimbursement type associated to the return items' do
-                expect(calculated_reimbursement_types[expired_reimbursement_type]).to eq(return_items)
-              end
+              context 'the reimbursement type is not valid for the return item' do
+                before { expect(reimbursement_type_engine).to receive(:valid_preferred_reimbursement_type?).and_return(false) }
 
-              it 'the return items are not included in any of the other reimbursement types' do
-                (all_reimbursement_types - [expired_reimbursement_type]).each do |r_type|
-                  expect(calculated_reimbursement_types[r_type]).to eq([])
+                it 'returns a hash with no return items associated to the preferred reimbursement type' do
+                  expect(calculated_reimbursement_types[preferred_reimbursement_type]).to eq([])
                 end
+
+                it 'the return items are not included in any of the other reimbursement types' do
+                  (all_reimbursement_types - [preferred_reimbursement_type]).each do |r_type|
+                    expect(calculated_reimbursement_types[r_type]).to eq([])
+                  end
+                end
+
+                it_should_behave_like 'reimbursement type hash'
               end
 
-              it_should_behave_like 'reimbursement type hash'
+              context 'the reimbursement type is valid for the return item' do
+                it 'returns a hash with the expired reimbursement type associated to the return items' do
+                  expect(calculated_reimbursement_types[preferred_reimbursement_type.class]).to eq(return_items)
+                end
+
+                it 'the return items are not included in any of the other reimbursement types' do
+                  (all_reimbursement_types - [preferred_reimbursement_type.class]).each do |r_type|
+                    expect(calculated_reimbursement_types[r_type]).to eq([])
+                  end
+                end
+
+                it_should_behave_like 'reimbursement type hash'
+              end
             end
 
-            context 'the return item is within the time constraint' do
+            context 'the return item does not have a preferred reimbursement type' do
               it 'returns a hash with the default reimbursement type associated to the return items' do
                 expect(calculated_reimbursement_types[reimbursement_type_engine.default_reimbursement_type]).to eq(return_items)
               end
