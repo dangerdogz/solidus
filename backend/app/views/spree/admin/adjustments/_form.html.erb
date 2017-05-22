@@ -25,4 +25,20 @@
     </div>
 
   </div>
+
+  <div class="row js-adjustable-fields">
+
+    <div class="col-3">
+      <%= f.field_container :adjustable_id do %>
+        <%= f.label :adjustable %><br/>
+        <%= f.select(:adjustable_id, {}, {"data-placeholder" => Spree.t(:select_a_reason) }, { class: 'js-adjustable fullwidth'}) do %>
+          <% adjustable_candidates.each do |c| %>
+            <%= content_tag(:option, c[:description], value: c[:id], data: { "adjustable-type": c[:type] }) %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <%= hidden_field :adjustment, :adjustable_type, value: "Spree::Order", class: "js-adjustable-type" %>
+  </div>
 </div>

@@ -11,7 +11,7 @@ module Spree
 
       before_action :find_adjustment, only: [:destroy, :edit, :update]
 
-      helper_method :reasons_for
+      helper_method :reasons_for, :adjustable_candidates
 
       def index
         @adjustments = @order.all_adjustments.order("created_at ASC")
@@ -43,6 +43,16 @@ module Spree
           Spree::AdjustmentReason.active.to_a,
           @adjustment.adjustment_reason
         ].flatten.compact.uniq.sort_by { |r| r.name.downcase }
+      end
+
+      def adjustable_candidates
+        candidates = [{id: parent.id, description: "Order", type: "Spree::Order"}]
+
+        parent.line_items.each do |li|
+          candidates << {id: li.id, description: li.variant.name, type: "Spree::LineItem" }
+        end
+
+        return candidates
       end
     end
   end
