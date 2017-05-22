@@ -31,7 +31,11 @@ module Spree
       # Override method used to create a new instance to correctly
       # associate adjustment with order
       def build_resource
-        parent.adjustments.build(order: parent)
+        model_class.new(default_params)
+      end
+
+      def default_params
+        { order: parent, adjustable: parent }
       end
 
       def reasons_for(_adjustment)
