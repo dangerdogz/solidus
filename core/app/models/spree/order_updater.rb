@@ -253,10 +253,9 @@ module Spree
         # The cancellation_total isn't persisted anywhere but is included in
         # the adjustment_total
         item_cancellation_total = item.adjustments.select(&:cancellation?).sum(&:amount)
+        item_adjustment_total = item.adjustments.select(&:eligible).sum(&:amount)
 
-        item.adjustment_total = item.promo_total +
-                                item.additional_tax_total +
-                                item_cancellation_total
+        item.adjustment_total = item_adjustment_total - item.included_tax_total
 
         if item.changed?
           item.update_columns(
